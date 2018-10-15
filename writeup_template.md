@@ -28,27 +28,42 @@ I started off by creating an array of object points which represent the 3D coord
  
 I computed the camera matrix and distortion coefficients by calling open cv’s `calibrateCamera` which takes in the object points and images points saved from earlier as parameters. 
 
-TODO ADD EXAMPLE 
+![alt text](./writeup/undistorted_calib.jpg "Undistorted Calibration Image")
 
 ### Pipeline (single images)
 
 #### 1. Provide an example of a distortion-corrected image.
 
-TODO ADD EXAMPLE 
+![alt text](./writeup/undistorted_image.jpg "Distortion Correction Image")
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
-I created 3 methods that generate binary images using various channels. The `rgb_select` method creates a binary image using the red, blue, or green channels of an image. The `s_select` method uses the saturation channel to create a binary image. Finally, the `sobel_x_select` method uses the Sobel x operator to create a binary image.  Each of these methods take in an image and a threshold value as parameters. 
+I created 3 methods that generate binary images using various channels. The `rgb_select` method creates a binary image using the red, blue, or green channels of an image. The `s_select` method uses the saturation channel to create a binary image. The `l_select` method uses the lightness channel to create a binary image. Finally, the `sobel_x_select` method uses the Sobel x operator to create a binary image.  Each of these methods take in an image and a threshold value as parameters. 
 
-I also created an interactive Jupyter widget that allows me to see how my final binary image looks like with varying threshold values for each of the channels mentioned above. The interactive widget can be found where the `test_combined_binary` method is located. This method takes in multiple threshold values and passes those threshold values to the methods mentioned above creating a binary image that combines the color and gradient thresholds. 
+I also created an interactive Jupyter widget that allowed me to see how my final binary image would look like with varying threshold values for each of the channels mentioned above. The interactive widget can be found where the `test_combined_binary` method is located. This method takes in multiple threshold values and passes those threshold values to the methods mentioned above creating a binary image that combines the color and gradient thresholds. 
 
-TODO ADD EXAMPLE 
+![alt text](./writeup/combined_binary.jpg "Binary Image")
 
 #### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
-I created a method called `warp`  that takes in an image, an array of  source coordinates, and an array of destination coordinates. Within the method I call open cv’s `getPerspectiveTranform` in order to calculate the perspective transform. 
+I created a method called `warp`  that takes in an image, an array of  source coordinates, and an array of destination coordinates. Within the method I call open cv’s `getPerspectiveTranform` in order to calculate the perspective transform. The method I used to generated the source and destination points can be found below:
 
-TODO ADD EXAMPLE 
+```
+src = np.float32(
+    [[(distorted_img.shape[1] / 2) - 55, distorted_img.shape[0] / 2 + 100],
+    [((distorted_img.shape[1] / 6) - 10), distorted_img.shape[0]],
+    [(distorted_img.shape[1] * 5 / 6) + 60, distorted_img.shape[0]],
+    [(distorted_img.shape[1] / 2 + 55), distorted_img.shape[0] / 2 + 100]])
+dst = np.float32(
+    [[(distorted_img.shape[1] / 4), 0],
+    [(distorted_img.shape[1] / 4), distorted_img.shape[0]],
+    [(distorted_img.shape[1] * 3 / 4), distorted_img.shape[0]],
+    [(distorted_img.shape[1] * 3 / 4), 0]])
+```
+
+The method above was provided in the writeup readme and was reused in this project. 
+
+![alt text](./writeup/warped.jpg "Binary Image")
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
@@ -62,18 +77,17 @@ I created a method called `measure_radius_of_curvature` located in each `Line` c
 
 I created a method called `calculate_dist_to_lane_center`. This method takes in two `Line` objects representing both the left and right lane lines. This method finds the x intercepts of each of the lane lines, calculates the center x value between those two x intercepts, and stores that value in `lane_center`. 
 
-The position of the cars camera is considered to be located in the middle of the image. This value is stored in `camera_pos`. The method calculates the difference between `lane_center` and `camera_pos` (the final value is also converted to meters).  
+The position of the cars camera is considered to be located in the middle of the image. This value is stored in `car_pos`. The method calculates the difference between `lane_center` and `car_pos` (the final value is also converted into meters).  
 
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
-
----
+![alt text](./writeup/final0.jpg.jpg "Final Image")
 
 ### Pipeline (video)
 
 #### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
 
-Here's a [link to my video result](./project_video.mp4)
+Here's a [link to my video result](./test_videos/project_submission.mp4)
 
 ---
 
@@ -81,4 +95,4 @@ Here's a [link to my video result](./project_video.mp4)
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-My program has issues with shadows appear on the lane lines. I believe the remedy for this issue would be to find the best color and gradient thresholds that reduce the amount of noise in each frame as well as defining a better boundary for where the pixels of each lane line might be located in. 
+My program has a slight issue with shadows that appear on the lane lines. I believe the remedy for this issue would be to find the best color and gradient thresholds that reduce the amount of noise in each frame as well as defining a better boundary for where the pixels of each lane line might be located in. 
